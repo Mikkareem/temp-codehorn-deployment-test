@@ -35,6 +35,10 @@ gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
 gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
     --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/storage.objectAdmin"
+
+gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
+    --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountKeyAdmin"
 ```
 
 
