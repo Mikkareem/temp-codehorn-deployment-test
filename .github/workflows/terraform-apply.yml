@@ -10,16 +10,23 @@ jobs:
     env:
       TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
 
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud (Bootstrap)
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.BOOTSTRAP_TERRAFORM_SERVICE_ACCOUNT_JSON }}
+
+      - name: Create GKE Deployer SA Key
+        run: |
+          gcloud iam service-accounts keys create ${{ github.workspace }}/temp-key.json \
+            --iam-account="codehorn-terraform-deployer@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com"
+          KEY_ID=$(jq -r '.private_key_id' ${{ github.workspace }}/temp-key.json)
+          echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
+          echo "Waiting for IAM propagation..."
+          sleep 15
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -28,18 +35,26 @@ jobs:
 
       - name: Terraform Init
         working-directory: terraform
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform init
 
       - name: Terraform Plan
         working-directory: terraform
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform plan
 
       - name: Terraform Apply
         working-directory: terraform
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform apply -auto-approve
 
       - name: Verify Argo CD UI Accessibility
         working-directory: terraform
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: |
           # Get Node IPs and decode password
           NODE_IP=$(terraform output -json gke_node_ips | jq -r '.[] | select(.type=="ExternalIP") | .address' | head -n 1)
@@ -69,3 +84,11 @@ jobs:
           
           echo "Error: Argo CD UI is not accessible after 5 minutes"
           exit 1
+
+      - name: Clean up GKE Deployer SA Key
+        if: always()
+        run: |
+          if [ ! -z "$KEY_ID" ]; then
+            gcloud iam service-accounts keys delete "$KEY_ID" \
+              --iam-account="codehorn-terraform-deployer@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com" --quiet
+          fi
