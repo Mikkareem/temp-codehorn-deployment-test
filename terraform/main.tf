@@ -54,11 +54,10 @@ resource "google_container_node_pool" "primary_nodes" {
   node_config {
     preemptible  = false
     machine_type = var.machine_type
-    image_type   = "projects/debian-cloud/global/images/debian-12-bookworm-v20260528"
+    image_type   = "UBUNTU_CONTAINERD"
     disk_type    = "pd-standard"
     disk_size_gb = 40
-
-
+    
     labels = {
       role = "general"
     }

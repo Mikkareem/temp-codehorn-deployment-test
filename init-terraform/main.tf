@@ -8,9 +8,11 @@ variable "deployer_roles" {
   type = list(string)
   default = [
     "roles/compute.networkAdmin",
+    "roles/compute.securityAdmin",
     "roles/container.admin",
     "roles/iam.serviceAccountUser",
     "roles/storage.objectAdmin"
+
   ]
 }
 
