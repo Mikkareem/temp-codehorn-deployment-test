@@ -7,6 +7,9 @@ jobs:
   terraform-apply:
     name: Terraform Apply and Verify
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+
 
     steps:
       - name: Checkout Code

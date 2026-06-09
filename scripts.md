@@ -41,3 +41,6 @@ gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
 
     - BOOTSTRAP_TERRAFORM_SERVICE_ACCOUNT_JSON
     - MAIN_PROJECT_SERVICE_ACCOUNT_JSON
+
+## Github Variables
+    - GCP_PROJECT_ID
