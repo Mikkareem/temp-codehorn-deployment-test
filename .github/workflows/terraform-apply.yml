@@ -1,0 +1,71 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  terraform-apply:
+    name: Terraform Apply and Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+
+      - name: Verify Argo CD UI Accessibility
+        working-directory: terraform
+        run: |
+          # Get Node IPs and decode password
+          NODE_IP=$(terraform output -json gke_node_ips | jq -r '.[] | select(.type=="ExternalIP") | .address' | head -n 1)
+          
+          # If no ExternalIP, fallback to any available IP
+          if [ -z "$NODE_IP" ]; then
+            NODE_IP=$(terraform output -json gke_node_ips | jq -r '.[0].address')
+          fi
+          
+          PASSWORD=$(terraform output -raw argocd_initial_admin_password)
+          
+          echo "=== Deployment Details ==="
+          echo "Argo CD UI URL: http://${NODE_IP}:30080"
+          echo "Initial Admin Password: ${PASSWORD}"
+          echo "=========================="
+          
+          # Wait and test connection
+          echo "Testing accessibility to Argo CD UI..."
+          for i in {1..30}; do
+            if curl -s -f -o /dev/null "http://${NODE_IP}:30080"; then
+              echo "Argo CD UI is accessible!"
+              exit 0
+            fi
+            echo "Waiting for Argo CD UI to be accessible... (attempt $i/30)"
+            sleep 10
+          done
+          
+          echo "Error: Argo CD UI is not accessible after 5 minutes"
+          exit 1

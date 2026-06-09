@@ -1,0 +1,140 @@
+# Default values for Codehorn Execution Services.
+
+global:
+  environment: production
+
+# Common configurations
+common:
+  restartPolicy: Always
+
+# C++ Execution Service
+cpp:
+  replicaCount: 1
+  image:
+    repository: codehorn/cpp-execution-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  sidecar:
+    image:
+      repository: docker
+      tag: "24.0.7-dind"
+      pullPolicy: IfNotPresent
+    runnerImage: "gcc:13"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Java Execution Service
+java:
+  replicaCount: 1
+  image:
+    repository: codehorn/java-execution-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  sidecar:
+    image:
+      repository: docker
+      tag: "24.0.7-dind"
+      pullPolicy: IfNotPresent
+    runnerImage: "openjdk:17-slim"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Python Execution Service
+python:
+  replicaCount: 1
+  image:
+    repository: codehorn/python-execution-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  sidecar:
+    image:
+      repository: docker
+      tag: "24.0.7-dind"
+      pullPolicy: IfNotPresent
+    runnerImage: "python:3.11-slim"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Javascript Execution Service
+javascript:
+  replicaCount: 1
+  image:
+    repository: codehorn/javascript-execution-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  sidecar:
+    image:
+      repository: docker
+      tag: "24.0.7-dind"
+      pullPolicy: IfNotPresent
+    runnerImage: "node:20-slim"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Problems Service
+problems:
+  replicaCount: 1
+  image:
+    repository: codehorn/problems-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Contest Service
+contest:
+  replicaCount: 1
+  image:
+    repository: codehorn/contest-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# Daily Challenge Service
+dailyChallenge:
+  replicaCount: 1
+  image:
+    repository: codehorn/daily-challenge-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# CodeSubmission Service
+codeSubmission:
+  replicaCount: 1
+  image:
+    repository: codehorn/code-submission-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+# CodeExecution Service
+codeExecution:
+  replicaCount: 1
+  image:
+    repository: codehorn/code-execution-service
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-problems-service
+  labels:
+    app: {{ .Release.Name }}-problems-service
+spec:
+  replicas: {{ .Values.problems.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-problems-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-problems-service
+    spec:
+      containers:
+        # Main Problems Service Container
+        - name: main
+          image: "{{ .Values.problems.image.repository }}:{{ .Values.problems.image.tag }}"
+          imagePullPolicy: {{ .Values.problems.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.problems.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.problems.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-problems-service
+  labels:
+    app: {{ .Release.Name }}-problems-service
+spec:
+  type: {{ .Values.problems.service.type }}
+  ports:
+    - port: {{ .Values.problems.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-problems-service

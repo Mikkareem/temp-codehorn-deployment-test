@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-cpp-execution-service
+  labels:
+    app: {{ .Release.Name }}-cpp-execution-service
+spec:
+  replicas: {{ .Values.cpp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-cpp-execution-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-cpp-execution-service
+    spec:
+      containers:
+        # Main CPP Execution Service Container
+        - name: main
+          image: "{{ .Values.cpp.image.repository }}:{{ .Values.cpp.image.tag }}"
+          imagePullPolicy: {{ .Values.cpp.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.cpp.service.port }}
+              protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          volumeMounts:
+            - name: shared-workspace
+              mountPath: /workspace
+          resources:
+            {{- toYaml .Values.cpp.resources | nindent 12 }}
+
+        # Docker in Docker (DinD) Sidecar Container
+        - name: dind-sidecar
+          image: "{{ .Values.cpp.sidecar.image.repository }}:{{ .Values.cpp.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.cpp.sidecar.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          volumeMounts:
+            - name: shared-workspace
+              mountPath: /workspace
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - docker image inspect {{ .Values.cpp.sidecar.runnerImage }} >/dev/null 2>&1
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - |
+                    until docker info >/dev/null 2>&1; do
+                      sleep 1
+                    done
+                    docker pull {{ .Values.cpp.sidecar.runnerImage }}
+      volumes:
+        - name: shared-workspace
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-cpp-execution-service
+  labels:
+    app: {{ .Release.Name }}-cpp-execution-service
+spec:
+  type: {{ .Values.cpp.service.type }}
+  ports:
+    - port: {{ .Values.cpp.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-cpp-execution-service

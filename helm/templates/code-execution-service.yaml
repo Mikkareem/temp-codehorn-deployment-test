@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-code-execution-service
+  labels:
+    app: {{ .Release.Name }}-code-execution-service
+spec:
+  replicas: {{ .Values.codeExecution.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-code-execution-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-code-execution-service
+    spec:
+      containers:
+        # Main CodeExecution Service Container
+        - name: main
+          image: "{{ .Values.codeExecution.image.repository }}:{{ .Values.codeExecution.image.tag }}"
+          imagePullPolicy: {{ .Values.codeExecution.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.codeExecution.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.codeExecution.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-code-execution-service
+  labels:
+    app: {{ .Release.Name }}-code-execution-service
+spec:
+  type: {{ .Values.codeExecution.service.type }}
+  ports:
+    - port: {{ .Values.codeExecution.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-code-execution-service

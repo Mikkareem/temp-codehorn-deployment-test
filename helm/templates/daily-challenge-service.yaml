@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-daily-challenge-service
+  labels:
+    app: {{ .Release.Name }}-daily-challenge-service
+spec:
+  replicas: {{ .Values.dailyChallenge.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-daily-challenge-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-daily-challenge-service
+    spec:
+      containers:
+        # Main Daily Challenge Service Container
+        - name: main
+          image: "{{ .Values.dailyChallenge.image.repository }}:{{ .Values.dailyChallenge.image.tag }}"
+          imagePullPolicy: {{ .Values.dailyChallenge.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.dailyChallenge.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.dailyChallenge.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-daily-challenge-service
+  labels:
+    app: {{ .Release.Name }}-daily-challenge-service
+spec:
+  type: {{ .Values.dailyChallenge.service.type }}
+  ports:
+    - port: {{ .Values.dailyChallenge.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-daily-challenge-service

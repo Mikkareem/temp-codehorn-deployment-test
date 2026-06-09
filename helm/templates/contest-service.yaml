@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-contest-service
+  labels:
+    app: {{ .Release.Name }}-contest-service
+spec:
+  replicas: {{ .Values.contest.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-contest-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-contest-service
+    spec:
+      containers:
+        # Main Contest Service Container
+        - name: main
+          image: "{{ .Values.contest.image.repository }}:{{ .Values.contest.image.tag }}"
+          imagePullPolicy: {{ .Values.contest.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.contest.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.contest.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-contest-service
+  labels:
+    app: {{ .Release.Name }}-contest-service
+spec:
+  type: {{ .Values.contest.service.type }}
+  ports:
+    - port: {{ .Values.contest.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-contest-service
