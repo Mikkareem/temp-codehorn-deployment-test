@@ -1,6 +1,8 @@
 
 ## Bootstrap Service Account
 
+Google Cloud Storage Bucket: codehorn-terraform-state
+
 ### Required Roles
 
     - **roles/iam.serviceAccountAdmin** (Create/manage service accounts)
