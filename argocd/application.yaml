@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/user/codehorn-app
+    repoURL: https://github.com/Mikkareem/temp-codehorn-deployment-test
     targetRevision: HEAD
-    path: deployments/kubernetes/helm
+    path: helm # deployments/kubernetes/helm
     helm:
       valueFiles:
         - values.yaml
