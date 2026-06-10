@@ -1,11 +1,14 @@
 output "gke_node_ips" {
-  value       = [
-    for address in data.kubernetes_nodes.gke_nodes.nodes[0].status[0].addresses : {
-      type    = address.type
-      address = address.address
-    }
-  ]
-  description = "IP addresses of the GKE Cluster Node"
+  value = flatten([
+    for node in data.kubernetes_nodes.gke_nodes.nodes : [
+      for address in node.status[0].addresses : {
+        type    = address.type
+        address = address.address
+      }
+    ]
+    if lookup(node.metadata[0].labels, "nodeports-open", "false") == "true"
+  ])
+  description = "IP addresses of the GKE Cluster Node with NodePorts open"
 }
 
 output "argocd_http_nodeport" {
