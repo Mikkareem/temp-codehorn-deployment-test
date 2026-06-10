@@ -137,10 +137,15 @@ resource "helm_release" "argocd" {
     value = "30443"
   }
 
-  set {
-    name  = "global.nodeSelector.nodeports-open"
-    value = "true"
-  }
+  values = [
+    yamlencode({
+      global = {
+        nodeSelector = {
+          "nodeports-open" = "true"
+        }
+      }
+    })
+  ]
 }
 
 # Fetch the initial admin secret created by Argo CD installation
