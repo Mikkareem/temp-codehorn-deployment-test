@@ -26,8 +26,6 @@ resource "google_compute_firewall" "allow_nodeport" {
   target_tags   = ["gke-node-nodeport"]
 }
 
-
-
 # Create Standard GKE Cluster (No AutoPilot)
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name
