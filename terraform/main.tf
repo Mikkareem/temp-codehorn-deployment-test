@@ -171,8 +171,7 @@ resource "terraform_data" "argocd_application" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.location} --project ${var.project_id}
-      kubectl apply -f ${path.module}/../argocd/application.yaml
+      kubectl --server="https://${google_container_cluster.primary.endpoint}" --token="${data.google_client_config.default.access_token}" --insecure-skip-tls-verify=true apply -f ${path.module}/../argocd/application.yaml
     EOT
   }
 }
