@@ -34,52 +34,46 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform plan
 
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform apply -auto-approve
 
       - name: Verify Argo CD UI Accessibility
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: |
-          # Get Node IPs and decode password
-          NODE_IP=$(terraform output -json gke_node_ips | jq -r '.[] | select(.type=="ExternalIP") | .address' | head -n 1)
-          
-          # If no ExternalIP, fallback to any available IP
-          if [ -z "$NODE_IP" ]; then
-            NODE_IP=$(terraform output -json gke_node_ips | jq -r '.[0].address')
-          fi
-          
+          # Get Nginx IP and decode password
+          NGINX_IP=$(terraform output -raw nginx_url)
           PASSWORD=$(terraform output -raw argocd_initial_admin_password)
           
           echo "=== Deployment Details ==="
-          echo "Argo CD UI URL: http://${NODE_IP}:30080"
+          echo "Argo CD UI URL: http://${NGINX_IP}"
           echo "Initial Admin Password: ${PASSWORD}"
           echo "=========================="
           
           # Wait and test connection
-          echo "Testing accessibility to Argo CD UI..."
+          echo "Testing accessibility to Argo CD UI via Nginx Gateway..."
           for i in {1..30}; do
-            if curl -s -f -o /dev/null "http://${NODE_IP}:30080"; then
-              echo "Argo CD UI is accessible!"
+            if curl -s -f -o /dev/null "http://${NGINX_IP}"; then
+              echo "Argo CD UI is accessible via Nginx!"
               exit 0
             fi
-            echo "Waiting for Argo CD UI to be accessible... (attempt $i/30)"
-            sleep 10
+            echo "Waiting for Nginx Gateway / Argo CD to be accessible... (attempt $i/30)"
+            sleep 5
           done
           
           echo "Error: Argo CD UI is not accessible after 5 minutes"

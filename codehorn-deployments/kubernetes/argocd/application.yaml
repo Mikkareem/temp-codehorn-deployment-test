@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Mikkareem/temp-codehorn-deployment-test
     targetRevision: HEAD
-    path: helm # deployments/kubernetes/helm
+    path: codehorn-deployments/kubernetes/helm
     helm:
       valueFiles:
         - values.yaml

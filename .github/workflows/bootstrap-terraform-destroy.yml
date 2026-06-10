@@ -26,9 +26,9 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: Terraform Init
-        working-directory: init-terraform
+        working-directory: codehorn-deployments/kubernetes/init-terraform
         run: terraform init
 
       - name: Terraform Destroy
-        working-directory: init-terraform
+        working-directory: codehorn-deployments/kubernetes/init-terraform
         run: terraform destroy -auto-approve

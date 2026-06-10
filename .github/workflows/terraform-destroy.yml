@@ -34,13 +34,13 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform init
 
       - name: Terraform Destroy
-        working-directory: terraform
+        working-directory: codehorn-deployments/kubernetes/terraform
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
         run: terraform destroy -auto-approve
