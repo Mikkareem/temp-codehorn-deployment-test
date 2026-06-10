@@ -158,9 +158,16 @@ data "kubernetes_nodes" "gke_nodes" {
   depends_on = [google_container_node_pool.primary_nodes]
 }
 
-# Deploy Argo CD Application
-resource "kubernetes_manifest" "argocd_application" {
-  manifest = yamldecode(file("${path.module}/../argocd/application.yaml"))
-
+# Deploy Argo CD Application via kubectl in local-exec to avoid plan-time REST client errors
+resource "terraform_data" "argocd_application" {
   depends_on = [helm_release.argocd]
+
+  input = filemd5("${path.module}/../argocd/application.yaml")
+
+  provisioner "local-exec" {
+    command = <<EOT
+      gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.location} --project ${var.project_id}
+      kubectl apply -f ${path.module}/../argocd/application.yaml
+    EOT
+  }
 }
