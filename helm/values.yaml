@@ -9,7 +9,7 @@ common:
 
 # C++ Execution Service
 cpp:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/cpp-execution-service
@@ -28,7 +28,7 @@ cpp:
 
 # Java Execution Service
 java:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/java-execution-service
@@ -47,7 +47,7 @@ java:
 
 # Python Execution Service
 python:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/python-execution-service
@@ -66,7 +66,7 @@ python:
 
 # Javascript Execution Service
 javascript:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/javascript-execution-service
@@ -85,7 +85,7 @@ javascript:
 
 # Problems Service
 problems:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/problems-service
@@ -98,7 +98,7 @@ problems:
 
 # Contest Service
 contest:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/contest-service
@@ -111,7 +111,7 @@ contest:
 
 # Daily Challenge Service
 dailyChallenge:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/daily-challenge-service
@@ -124,7 +124,7 @@ dailyChallenge:
 
 # CodeSubmission Service
 codeSubmission:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/code-submission-service
@@ -137,7 +137,7 @@ codeSubmission:
 
 # CodeExecution Service
 codeExecution:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: codehorn/code-execution-service
@@ -155,7 +155,7 @@ consul:
   image:
     repository: hashicorp/consul
     pullPolicy: IfNotPresent
-    tag: "1.15"
+    tag: "2.0"
   service:
     type: NodePort
     port: 8500
