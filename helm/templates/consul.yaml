@@ -15,15 +15,15 @@ spec:
       labels:
         app: {{ .Release.Name }}-consul
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: nodeports-open
-                    operator: In
-                    values:
-                      - "true"
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #         - matchExpressions:
+      #             - key: nodeports-open
+      #               operator: In
+      #               values:
+      #                 - "true"
       containers:
         - name: consul
           image: "{{ .Values.consul.image.repository }}:{{ .Values.consul.image.tag }}"
@@ -52,9 +52,6 @@ spec:
     - name: http
       port: {{ .Values.consul.service.port }}
       targetPort: http
-      {{- if eq .Values.consul.service.type "NodePort" }}
-      nodePort: {{ .Values.consul.service.nodePort }}
-      {{- end }}
     - name: dns
       port: 8600
       targetPort: dns

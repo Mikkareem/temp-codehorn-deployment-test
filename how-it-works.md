@@ -41,8 +41,8 @@
     - Cluster Management
 
 ## GCP Kubernetes Cluster (GKE)
-  - 1 Node (Standard Cluster, No AutoPilot)
-  - Node Specification: 4-8 Cores, 16GB RAM
+  - 1+1 Node (Standard Cluster, No AutoPilot)
+  - Node Specification: 4-8 Cores, Upto 16GB RAM
 
 
 ### Argo CD Deployment

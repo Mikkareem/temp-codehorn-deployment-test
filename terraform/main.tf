@@ -10,20 +10,16 @@ resource "google_compute_subnetwork" "subnet" {
   region        = var.region
   network       = google_compute_network.vpc.name
   ip_cidr_range = "10.10.0.0/24"
-}
 
-# Create Firewall Rule to allow NodePorts from outside
-resource "google_compute_firewall" "allow_nodeport" {
-  name    = "${var.cluster_name}-allow-nodeport"
-  network = google_compute_network.vpc.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["30080", "30443", "30500"]
+  secondary_ip_range {
+    range_name    = "k8s-pod-range"
+    ip_cidr_range = "10.20.0.0/16"
   }
 
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["gke-node-nodeport"]
+  secondary_ip_range {
+    range_name    = "k8s-service-range"
+    ip_cidr_range = "10.30.0.0/16"
+  }
 }
 
 # Create Standard GKE Cluster (No AutoPilot)
@@ -40,6 +36,16 @@ resource "google_container_cluster" "primary" {
   # Disable deletion protection to allow Terraform destroy
   deletion_protection = false
 
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "k8s-pod-range"
+    services_secondary_range_name = "k8s-service-range"
+  }
+
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = "172.16.0.0/28"
+  }
 }
 
 # Create Custom Node Pool (1 Node, e2-standard-4)
@@ -57,11 +63,8 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = 40
     
     labels = {
-      role             = "general"
-      "nodeports-open" = "true"
+      role = "general"
     }
-
-    tags = ["gke-node-nodeport"]
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -122,30 +125,15 @@ resource "helm_release" "argocd" {
 
   wait = true
 
-  set {
-    name  = "server.service.type"
-    value = "NodePort"
-  }
-
-  set {
-    name  = "server.service.nodePort.http"
-    value = "30080"
-  }
-
-  set {
-    name  = "server.service.nodePort.https"
-    value = "30443"
-  }
-
-  values = [
-    yamlencode({
-      global = {
-        nodeSelector = {
-          "nodeports-open" = "true"
-        }
-      }
-    })
-  ]
+  #values = [
+  #  yamlencode({
+  #    global = {
+  #      nodeSelector = {
+  #        "nodeports-open" = "true"
+  #      }
+  #    }
+  #  })
+  #]
 }
 
 # Fetch the initial admin secret created by Argo CD installation
@@ -173,5 +161,165 @@ resource "terraform_data" "argocd_application" {
     command = <<EOT
       kubectl --server="https://${google_container_cluster.primary.endpoint}" --token="${data.google_client_config.default.access_token}" --insecure-skip-tls-verify=true apply -f ${path.module}/../argocd/application.yaml
     EOT
+  }
+}
+
+# Create Cloud Router for NAT
+resource "google_compute_router" "router" {
+  name    = "${var.cluster_name}-router"
+  region  = var.region
+  network = google_compute_network.vpc.name
+}
+
+# Create Cloud NAT to allow private nodes to reach the internet
+resource "google_compute_router_nat" "nat" {
+  name                               = "${var.cluster_name}-nat"
+  router                             = google_compute_router.router.name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+}
+
+# Create nginx-gateway namespace
+resource "kubernetes_namespace" "nginx_gateway" {
+  depends_on = [google_container_node_pool.primary_nodes]
+
+  metadata {
+    name = "nginx-gateway"
+  }
+}
+
+# Create Nginx ConfigMap for TCP Stream Proxy
+resource "kubernetes_config_map" "nginx_config" {
+  metadata {
+    name      = "nginx-config"
+    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
+  }
+
+  data = {
+    "nginx.conf" = <<EOT
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+stream {
+    server {
+        listen 80;
+        proxy_pass argocd-server.argocd.svc.cluster.local:80;
+    }
+    server {
+        listen 443;
+        proxy_pass argocd-server.argocd.svc.cluster.local:443;
+    }
+    server {
+        listen 8500;
+        proxy_pass codehorn-app-consul.codehorn-app.svc.cluster.local:8500;
+    }
+}
+EOT
+  }
+}
+
+# Create Nginx Deployment
+resource "kubernetes_deployment" "nginx" {
+  metadata {
+    name      = "nginx-gateway"
+    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
+    labels = {
+      app = "nginx-gateway"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        app = "nginx-gateway"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "nginx-gateway"
+        }
+      }
+
+      spec {
+        container {
+          name  = "nginx"
+          image = "nginx:alpine"
+
+          port {
+            name           = "http"
+            container_port = 80
+          }
+
+          port {
+            name           = "https"
+            container_port = 443
+          }
+
+          port {
+            name           = "consul"
+            container_port = 8500
+          }
+
+          volume_mount {
+            name       = "config-volume"
+            mount_path = "/etc/nginx/nginx.conf"
+            sub_path   = "nginx.conf"
+          }
+        }
+
+        volume {
+          name = "config-volume"
+          config_map {
+            name = kubernetes_config_map.nginx_config.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
+
+# Create Nginx LoadBalancer Service (without specifying nodePorts)
+resource "kubernetes_service" "nginx" {
+  metadata {
+    name      = "nginx-gateway"
+    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
+  }
+
+  spec {
+    type = "LoadBalancer"
+
+    selector = {
+      app = "nginx-gateway"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 80
+    }
+
+    port {
+      name        = "https"
+      port        = 443
+      target_port = 443
+    }
+
+    port {
+      name        = "consul"
+      port        = 8500
+      target_port = 8500
+    }
   }
 }
