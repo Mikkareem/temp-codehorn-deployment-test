@@ -82,29 +82,37 @@ Before running the workflows, you must manually create a Bootstrap Service Accou
 Run the following Google Cloud SDK (`gcloud`) commands:
 
 ```bash
-# Set your active GCP Project ID
+# Set your active GCP Project ID and region
 YOUR_PROJECT_ID="your-gcp-project-id"
+REGION="us-central1"
 
-# 1. Create the Bootstrap Service Account
+# 1. Create the GCS Bucket for Terraform State (with Public Access Prevention enabled)
+BUCKET_NAME="codehorn-terraform-state"
+gcloud storage buckets create gs://$BUCKET_NAME \
+    --project=$YOUR_PROJECT_ID \
+    --location=$REGION \
+    --public-access-prevention
+
+# 2. Create the Bootstrap Service Account
 gcloud iam service-accounts create terraform-bootstrap \
     --display-name="Terraform Bootstrap Account"
 
-# 2. Bind IAM SA Admin role (to create/manage deployment service accounts)
+# 3. Bind IAM SA Admin role (to create/manage deployment service accounts)
 gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
     --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/iam.serviceAccountAdmin"
 
-# 3. Bind Project IAM Admin role (to assign roles to GKE deployer SAs)
+# 4. Bind Project IAM Admin role (to assign roles to GKE deployer SAs)
 gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
     --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/resourcemanager.projectIamAdmin"
 
-# 4. Bind GCS Object Admin role (to read/write state files in codehorn-terraform-state bucket)
+# 5. Bind GCS Object Admin role (to read/write state files in codehorn-terraform-state bucket)
 gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
     --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/storage.objectAdmin"
 
-# 5. Bind IAM SA Key Admin role (to generate deployment SA keys during GHA runs)
+# 6. Bind IAM SA Key Admin role (to generate deployment SA keys during GHA runs)
 gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
     --member="serviceAccount:terraform-bootstrap@$YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/iam.serviceAccountKeyAdmin"
