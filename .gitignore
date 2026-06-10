@@ -1,2 +1,9 @@
+# DEPLOYMENT
 .terraform
 .terraform*
+
+# BACKEND
+build
+.kotlin
+.idea
+.gradle

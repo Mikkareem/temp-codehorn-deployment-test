@@ -27,11 +27,21 @@ spec:
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
+            - name: SPRING_APPLICATION_NAME
+              value: "javascript-execution-service"
+            - name: SERVER_PORT
+              value: "{{ .Values.javascript.service.port }}"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health"
             {{- if .Values.consul.enabled }}
             - name: SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME
               value: "{{ .Release.Name }}-javascript-execution-service"
             - name: SPRING_CLOUD_CONSUL_DISCOVERY_PORT
               value: "{{ .Values.javascript.service.port }}"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HEALTH_CHECK_PATH
+              value: "/actuator/health"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HEALTH_CHECK_INTERVAL
+              value: "10s"
             {{- else }}
             - name: SPRING_CLOUD_CONSUL_ENABLED
               value: "false"

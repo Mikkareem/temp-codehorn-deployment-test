@@ -1,0 +1,31 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: service1
+          uri: lb://consul-service1
+          predicates:
+            - Path=/service1/**
+          filters:
+            - StripPrefix=1
+
+        - id: service2
+          uri: lb://consul-service2
+          predicates:
+            - Path=/service2/**
+          filters:
+            - StripPrefix=1
+
+        - id: service3
+          uri: lb://consul-service3
+          predicates:
+            - Path=/service3/**
+          filters:
+            - StripPrefix=1
+
+        - id: service4
+          uri: lb://consul-service4
+          predicates:
+            - Path=/service4/**
+          filters:
+            - StripPrefix=1
