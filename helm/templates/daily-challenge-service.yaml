@@ -1,3 +1,4 @@
+{{- if .Values.dailyChallenge.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,6 +24,21 @@ spec:
             - name: http
               containerPort: {{ .Values.dailyChallenge.service.port }}
               protocol: TCP
+          env:
+            {{- if .Values.consul.enabled }}
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME
+              value: "{{ .Release.Name }}-daily-challenge-service"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_PORT
+              value: "{{ .Values.dailyChallenge.service.port }}"
+            {{- else }}
+            - name: SPRING_CLOUD_CONSUL_ENABLED
+              value: "false"
+            {{- end }}
+          {{- if .Values.consul.enabled }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-consul-config
+          {{- end }}
           resources:
             {{- toYaml .Values.dailyChallenge.resources | nindent 12 }}
 ---
@@ -41,3 +57,4 @@ spec:
       name: http
   selector:
     app: {{ .Release.Name }}-daily-challenge-service
+{{- end }}

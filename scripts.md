@@ -50,3 +50,14 @@ gcloud projects add-iam-policy-binding $YOUR_PROJECT_ID \
 
 ## Github Variables
     - GCP_PROJECT_ID
+
+### Spring Consul Health Check
+
+```
+# Enable Consul health check
+spring.cloud.consul.discovery.health-check-path=/actuator/health
+spring.cloud.consul.discovery.health-check-interval=10s
+# Use the Kubernetes Service DNS for the health check URL
+spring.cloud.consul.discovery.health-check-url=http://${spring.cloud.consul.discovery.hostname}:${spring.cloud.consul.discovery.port}/actuator/health
+
+```

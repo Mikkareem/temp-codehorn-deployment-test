@@ -1,3 +1,4 @@
+{{- if .Values.cpp.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,9 +27,31 @@ spec:
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
+            {{- if .Values.consul.enabled }}
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME
+              value: "{{ .Release.Name }}-cpp-execution-service"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_PORT
+              value: "{{ .Values.cpp.service.port }}"
+            {{- else }}
+            - name: SPRING_CLOUD_CONSUL_ENABLED
+              value: "false"
+            {{- end }}
+          {{- if .Values.consul.enabled }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-consul-config
+          {{- end }}
           volumeMounts:
             - name: shared-workspace
               mountPath: /workspace
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - docker image inspect {{ .Values.cpp.sidecar.runnerImage }} >/dev/null 2>&1
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.cpp.resources | nindent 12 }}
 
@@ -60,7 +83,7 @@ spec:
                   - -c
                   - |
                     until docker info >/dev/null 2>&1; do
-                      sleep 1
+                      sleep 5
                     done
                     docker pull {{ .Values.cpp.sidecar.runnerImage }}
       volumes:
@@ -82,3 +105,4 @@ spec:
       name: http
   selector:
     app: {{ .Release.Name }}-cpp-execution-service
+{{- end }}

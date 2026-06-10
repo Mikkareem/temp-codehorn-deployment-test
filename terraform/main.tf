@@ -12,18 +12,18 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.10.0.0/24"
 }
 
-# Create Firewall Rule to allow Argo CD NodePort from outside
-resource "google_compute_firewall" "allow_argocd_nodeport" {
-  name    = "${var.cluster_name}-allow-argocd-nodeport"
+# Create Firewall Rule to allow NodePorts from outside
+resource "google_compute_firewall" "allow_nodeport" {
+  name    = "${var.cluster_name}-allow-nodeport"
   network = google_compute_network.vpc.name
 
   allow {
     protocol = "tcp"
-    ports    = ["30080", "30443"]
+    ports    = ["30080", "30443", "30500"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["gke-node-argocd"]
+  target_tags   = ["gke-node-nodeport"]
 }
 
 
@@ -59,10 +59,11 @@ resource "google_container_node_pool" "primary_nodes" {
     disk_size_gb = 40
     
     labels = {
-      role = "general"
+      role             = "general"
+      "nodeports-open" = "true"
     }
 
-    tags = ["gke-node-argocd"]
+    tags = ["gke-node-nodeport"]
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -108,6 +109,11 @@ resource "helm_release" "argocd" {
     name  = "server.service.nodePort.https"
     value = "30443"
   }
+
+  set {
+    name  = "global.nodeSelector.nodeports-open"
+    value = "true"
+  }
 }
 
 # Fetch the initial admin secret created by Argo CD installation
@@ -125,4 +131,9 @@ data "kubernetes_nodes" "gke_nodes" {
   depends_on = [google_container_node_pool.primary_nodes]
 }
 
+# Deploy Argo CD Application
+resource "kubernetes_manifest" "argocd_application" {
+  manifest = yamldecode(file("${path.module}/../argocd/application.yaml"))
 
+  depends_on = [helm_release.argocd]
+}
