@@ -221,7 +221,7 @@ stream {
                      '$protocol $status $bytes_sent $bytes_received '
                      '$session_time "$upstream_addr"';
 
-    access_log /var/log/nginx/access.log basic;
+    access_log /dev/stdout basic;
 
     resolver ${data.kubernetes_service.kube_dns.spec[0].cluster_ip} valid=10s;
 

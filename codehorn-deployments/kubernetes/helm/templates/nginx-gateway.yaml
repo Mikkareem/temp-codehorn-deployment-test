@@ -19,7 +19,7 @@ data:
                          '$protocol $status $bytes_sent $bytes_received '
                          '$session_time "$upstream_addr"';
 
-        access_log /var/log/nginx/access.log basic;
+        access_log /dev/stdout basic;
 
         resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
