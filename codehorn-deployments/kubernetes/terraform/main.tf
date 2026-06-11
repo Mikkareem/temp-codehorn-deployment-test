@@ -180,6 +180,14 @@ resource "google_compute_router_nat" "nat" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
+data "kubernetes_service" "kube_dns" {
+  depends_on = [google_container_node_pool.primary_nodes]
+  metadata {
+    name      = "kube-dns"
+    namespace = "kube-system"
+  }
+}
+
 # Create nginx-gateway namespace
 resource "kubernetes_namespace" "nginx_gateway" {
   depends_on = [google_container_node_pool.primary_nodes]
@@ -209,17 +217,29 @@ events {
 }
 
 stream {
+    resolver ${data.kubernetes_service.kube_dns.spec[0].cluster_ip} valid=10s;
+
+    map $remote_addr $argocd_http {
+        default argocd-server.argocd.svc.cluster.local:80;
+    }
+    map $remote_addr $argocd_https {
+        default argocd-server.argocd.svc.cluster.local:443;
+    }
+    map $remote_addr $consul_backend {
+        default codehorn-app-consul.codehorn-app.svc.cluster.local:8500;
+    }
+
     server {
         listen 80;
-        proxy_pass argocd-server.argocd.svc.cluster.local:80;
+        proxy_pass $argocd_http;
     }
     server {
         listen 443;
-        proxy_pass argocd-server.argocd.svc.cluster.local:443;
+        proxy_pass $argocd_https;
     }
     server {
         listen 8500;
-        proxy_pass codehorn-app-consul.codehorn-app.svc.cluster.local:8500;
+        proxy_pass $consul_backend;
     }
 }
 EOT
