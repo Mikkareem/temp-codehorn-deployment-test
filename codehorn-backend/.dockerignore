@@ -9,3 +9,6 @@
 !settings.gradle.kts
 !build.gradle.kts
 !gradlew
+
+
+**/build/**

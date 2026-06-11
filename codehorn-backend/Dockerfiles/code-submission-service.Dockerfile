@@ -30,7 +30,7 @@ RUN $JAVA_HOME/bin/jdeps \
       --output /tmp/jre \
     && rm -rf temp
 
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /tmp/jre $JAVA_HOME

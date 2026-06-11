@@ -30,7 +30,7 @@ RUN $JAVA_HOME/bin/jdeps \
       --output /tmp/jre \
     && rm -rf temp
 
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /tmp/jre $JAVA_HOME
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian buster stable" | tee /etc/apt/keyrings/docker.list > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/keyrings/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y docker-ce-cli
 
