@@ -3,11 +3,9 @@
 global:
   environment: production
   cloudsqlUrl: "jdbc:mysql://cloudsql-proxy-service.sql-proxy.svc.cluster.local:3306"
-
 # Common configurations
 common:
   restartPolicy: Always
-
 # C++ Execution Service
 cpp:
   enabled: false
@@ -15,7 +13,7 @@ cpp:
   image:
     repository: irsathkareem/codehorn-cpp-execution-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:7e661ae97a191c5ef4deae6ec5c37810ecaa30afb036db8cf9b71d46470d9e2b"
   sidecar:
     image:
       repository: docker
@@ -26,7 +24,6 @@ cpp:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Java Execution Service
 java:
   enabled: false
@@ -34,7 +31,7 @@ java:
   image:
     repository: irsathkareem/codehorn-java-execution-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:c5747d4e1525f432c58c7718e14bfba7bd551dba031d75d7805ac9a0c3d35889"
   sidecar:
     image:
       repository: docker
@@ -45,7 +42,6 @@ java:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Python Execution Service
 python:
   enabled: false
@@ -53,7 +49,7 @@ python:
   image:
     repository: irsathkareem/codehorn-python-execution-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:6493ccee107d6cff2465c62c48390bd3d6113f6e867b5f651bc25ec6056e8bfa"
   sidecar:
     image:
       repository: docker
@@ -64,7 +60,6 @@ python:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Javascript Execution Service
 javascript:
   enabled: false
@@ -72,7 +67,7 @@ javascript:
   image:
     repository: irsathkareem/codehorn-javascript-execution-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:223b7ad8557c2a92b91af52cae4cee564b2b72cd906efc55f735edceb7dfc982"
   sidecar:
     image:
       repository: docker
@@ -83,7 +78,6 @@ javascript:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Problems Service
 problems:
   enabled: false
@@ -91,12 +85,11 @@ problems:
   image:
     repository: irsathkareem/codehorn-problems-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:eebc2c69310504428c0fe0f3d36a6f02c932ba6030e615f43a64fba77accdff4"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Contest Service
 contest:
   enabled: false
@@ -104,12 +97,11 @@ contest:
   image:
     repository: irsathkareem/codehorn-contest-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:468740f96d627baa50448579446f77fcd4dafb77d16c98ab3bfd3a3135e9f270"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Daily Challenge Service
 dailyChallenge:
   enabled: false
@@ -117,12 +109,11 @@ dailyChallenge:
   image:
     repository: irsathkareem/codehorn-daily-challenge-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:56c27a6c51890d515488b1be9083c9a3ee7624b0db89ef5b45b6b981660bb0f0"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # CodeSubmission Service
 codeSubmission:
   enabled: false
@@ -130,12 +121,11 @@ codeSubmission:
   image:
     repository: irsathkareem/codehorn-code-submission-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:dfe699067dac3a7cee068b29bb0f1aa62206b165accc01951a7568cce461e6b0"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # CodeExecution Service
 codeExecution:
   enabled: false
@@ -143,12 +133,11 @@ codeExecution:
   image:
     repository: irsathkareem/codehorn-code-execution-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:8aa11abe519b017f5eb72ebdae5e2af1acfa743a30df3cf12ab52003e73987fa"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Gateway Service
 gateway:
   enabled: false
@@ -156,12 +145,11 @@ gateway:
   image:
     repository: irsathkareem/codehorn-gateway-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:c5835d92a3560ac9d83cbc80bcf8159cb83417e1e5ccb1c4297d164b6b4c77ee"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # Auth Service
 auth:
   enabled: false
@@ -169,12 +157,11 @@ auth:
   image:
     repository: irsathkareem/codehorn-auth-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:a0fabf5540969eb744131030f95e50921eaa2542f280f04c1d562ccd430bb074"
   service:
     type: ClusterIP
     port: 80
   resources: {}
-
 # ProblemSubmission Service
 problemSubmission:
   enabled: false
@@ -182,12 +169,11 @@ problemSubmission:
   image:
     repository: irsathkareem/codehorn-problem-submission-service
     pullPolicy: IfNotPresent
-    sha: ""
+    sha: "sha256:c5e670c85f556bf34b8e49190cb358b19fce448bd63bb7c228941ae48c1bd6fd"
   service:
     type: ClusterIP
     port: 8080
   resources: {}
-
 # Consul Service
 consul:
   enabled: true
@@ -200,7 +186,6 @@ consul:
     type: ClusterIP
     port: 8500
   resources: {}
-
 # Nginx LoadBalancer Service
 nginx:
   enabled: true
