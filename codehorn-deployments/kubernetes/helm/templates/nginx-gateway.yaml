@@ -18,7 +18,7 @@ data:
         resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
         map $remote_addr $gateway_backend {
-            default {{ .Release.Name }}-gateway-service:{{ .Values.gateway.service.port }};
+            default {{ .Release.Name }}-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.gateway.service.port }};
         }
 
         server {
