@@ -15,12 +15,15 @@ data:
         worker_connections 1024;
     }
     stream {
-        upstream gateway {
-            server {{ .Release.Name }}-gateway-service:{{ .Values.gateway.service.port }};
+        resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+
+        map $remote_addr $gateway_backend {
+            default {{ .Release.Name }}-gateway-service:{{ .Values.gateway.service.port }};
         }
+
         server {
             listen 80;
-            proxy_pass gateway;
+            proxy_pass $gateway_backend;
         }
     }
 ---
