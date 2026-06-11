@@ -1,0 +1,11 @@
+# Ignore everything
+**
+
+# Re-include specific directories / files
+# Such that
+# COPY . . -----> Includes only these files
+!*-service/**
+!gradle/**
+!settings.gradle.kts
+!build.gradle.kts
+!gradlew

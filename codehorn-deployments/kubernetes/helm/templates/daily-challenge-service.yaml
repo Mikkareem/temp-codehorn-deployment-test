@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Daily Challenge Service Container
         - name: main
-          image: "{{ .Values.dailyChallenge.image.repository }}:{{ .Values.dailyChallenge.image.tag }}"
+          image: "{{ .Values.dailyChallenge.image.repository }}{{ if eq .Values.dailyChallenge.image.sha \"\" }}:latest{{ else }}@{{ .Values.dailyChallenge.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.dailyChallenge.image.pullPolicy }}
           ports:
             - name: http

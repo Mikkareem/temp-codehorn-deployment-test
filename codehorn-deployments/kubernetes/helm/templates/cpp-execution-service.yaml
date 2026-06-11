@@ -18,7 +18,7 @@ spec:
       containers:
         # Main CPP Execution Service Container
         - name: main
-          image: "{{ .Values.cpp.image.repository }}:{{ .Values.cpp.image.tag }}"
+          image: "{{ .Values.cpp.image.repository }}{{ if eq .Values.cpp.image.sha \"\" }}:latest{{ else }}@{{ .Values.cpp.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.cpp.image.pullPolicy }}
           ports:
             - name: http

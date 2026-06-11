@@ -27,3 +27,9 @@ variable "machine_type" {
   type        = string
   default     = "e2-standard-4" # 4 vCPUs, 16 GB memory
 }
+
+variable "enable_cloudsql" {
+  description = "If true, provisions the GCP Cloud SQL Instance and GKE Auth Proxy"
+  type        = bool
+  default     = true
+}

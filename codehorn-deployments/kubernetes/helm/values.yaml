@@ -2,6 +2,7 @@
 
 global:
   environment: production
+  cloudsqlUrl: "jdbc:mysql://cloudsql-proxy-service.sql-proxy.svc.cluster.local:3306"
 
 # Common configurations
 common:
@@ -12,9 +13,9 @@ cpp:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/cpp-execution-service
+    repository: irsathkareem/codehorn-cpp-execution-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   sidecar:
     image:
       repository: docker
@@ -23,7 +24,7 @@ cpp:
     runnerImage: "gcc:13"
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Java Execution Service
@@ -31,9 +32,9 @@ java:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/java-execution-service
+    repository: irsathkareem/codehorn-java-execution-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   sidecar:
     image:
       repository: docker
@@ -42,7 +43,7 @@ java:
     runnerImage: "openjdk:17-slim"
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Python Execution Service
@@ -50,9 +51,9 @@ python:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/python-execution-service
+    repository: irsathkareem/codehorn-python-execution-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   sidecar:
     image:
       repository: docker
@@ -61,7 +62,7 @@ python:
     runnerImage: "python:3.11-slim"
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Javascript Execution Service
@@ -69,9 +70,9 @@ javascript:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/javascript-execution-service
+    repository: irsathkareem/codehorn-javascript-execution-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   sidecar:
     image:
       repository: docker
@@ -80,7 +81,7 @@ javascript:
     runnerImage: "node:20-slim"
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Problems Service
@@ -88,12 +89,12 @@ problems:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/problems-service
+    repository: irsathkareem/codehorn-problems-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Contest Service
@@ -101,12 +102,12 @@ contest:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/contest-service
+    repository: irsathkareem/codehorn-contest-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # Daily Challenge Service
@@ -114,12 +115,12 @@ dailyChallenge:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/daily-challenge-service
+    repository: irsathkareem/codehorn-daily-challenge-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # CodeSubmission Service
@@ -127,12 +128,12 @@ codeSubmission:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/code-submission-service
+    repository: irsathkareem/codehorn-code-submission-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources: {}
 
 # CodeExecution Service
@@ -140,9 +141,48 @@ codeExecution:
   enabled: false
   replicaCount: 1
   image:
-    repository: codehorn/code-execution-service
+    repository: irsathkareem/codehorn-code-execution-service
     pullPolicy: IfNotPresent
-    tag: "latest"
+    sha: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources: {}
+
+# Gateway Service
+gateway:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: irsathkareem/codehorn-gateway-service
+    pullPolicy: IfNotPresent
+    sha: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources: {}
+
+# Auth Service
+auth:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: irsathkareem/codehorn-auth-service
+    pullPolicy: IfNotPresent
+    sha: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources: {}
+
+# ProblemSubmission Service
+problemSubmission:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: irsathkareem/codehorn-problem-submission-service
+    pullPolicy: IfNotPresent
+    sha: ""
   service:
     type: ClusterIP
     port: 8080
@@ -159,4 +199,17 @@ consul:
   service:
     type: ClusterIP
     port: 8500
+  resources: {}
+
+# Nginx LoadBalancer Service
+nginx:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: nginx
+    tag: alpine
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80
   resources: {}

@@ -1,0 +1,70 @@
+{{- if .Values.problemSubmission.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-problem-submission-service
+  labels:
+    app: {{ .Release.Name }}-problem-submission-service
+spec:
+  replicas: {{ .Values.problemSubmission.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-problem-submission-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-problem-submission-service
+    spec:
+      containers:
+        # Main ProblemSubmission Service Container
+        - name: main
+          image: "{{ .Values.problemSubmission.image.repository }}{{ if eq .Values.problemSubmission.image.sha \"\" }}:latest{{ else }}@{{ .Values.problemSubmission.image.sha }}{{ end }}"
+          imagePullPolicy: {{ .Values.problemSubmission.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.problemSubmission.service.port }}
+              protocol: TCP
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "problem-submission-service"
+            - name: SERVER_PORT
+              value: "{{ .Values.problemSubmission.service.port }}"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health"
+            {{- if .Values.consul.enabled }}
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME
+              value: "{{ .Release.Name }}-problem-submission-service"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_PORT
+              value: "{{ .Values.problemSubmission.service.port }}"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HEALTH_CHECK_PATH
+              value: "/actuator/health"
+            - name: SPRING_CLOUD_CONSUL_DISCOVERY_HEALTH_CHECK_INTERVAL
+              value: "10s"
+            {{- else }}
+            - name: SPRING_CLOUD_CONSUL_ENABLED
+              value: "false"
+            {{- end }}
+          {{- if .Values.consul.enabled }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-consul-config
+          {{- end }}
+          resources:
+            {{- toYaml .Values.problemSubmission.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-problem-submission-service
+  labels:
+    app: {{ .Release.Name }}-problem-submission-service
+spec:
+  type: {{ .Values.problemSubmission.service.type }}
+  ports:
+    - port: {{ .Values.problemSubmission.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-problem-submission-service
+{{- end }}

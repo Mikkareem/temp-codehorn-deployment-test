@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Python Execution Service Container
         - name: main
-          image: "{{ .Values.python.image.repository }}:{{ .Values.python.image.tag }}"
+          image: "{{ .Values.python.image.repository }}{{ if eq .Values.python.image.sha \"\" }}:latest{{ else }}@{{ .Values.python.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.python.image.pullPolicy }}
           ports:
             - name: http

@@ -18,7 +18,7 @@ spec:
       containers:
         # Main CodeSubmission Service Container
         - name: main
-          image: "{{ .Values.codeSubmission.image.repository }}:{{ .Values.codeSubmission.image.tag }}"
+          image: "{{ .Values.codeSubmission.image.repository }}{{ if eq .Values.codeSubmission.image.sha \"\" }}:latest{{ else }}@{{ .Values.codeSubmission.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.codeSubmission.image.pullPolicy }}
           ports:
             - name: http

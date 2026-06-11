@@ -18,7 +18,7 @@ spec:
       containers:
         # Main CodeExecution Service Container
         - name: main
-          image: "{{ .Values.codeExecution.image.repository }}:{{ .Values.codeExecution.image.tag }}"
+          image: "{{ .Values.codeExecution.image.repository }}{{ if eq .Values.codeExecution.image.sha \"\" }}:latest{{ else }}@{{ .Values.codeExecution.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.codeExecution.image.pullPolicy }}
           ports:
             - name: http

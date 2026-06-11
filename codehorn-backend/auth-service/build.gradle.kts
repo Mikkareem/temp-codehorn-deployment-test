@@ -15,5 +15,6 @@ dependencies {
 
     implementation(libs.spring.boot.starter.actuator)
 
-    // implementation(platform(libs.spring.cloud.bom))
+    implementation(platform(libs.spring.cloud.bom))
+    implementation(libs.spring.cloud.starter.consul.discovery)
 }

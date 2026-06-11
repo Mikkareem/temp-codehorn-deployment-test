@@ -2,30 +2,79 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: service1
-          uri: lb://consul-service1
+        - id: auth
+          uri: lb://auth-service
           predicates:
-            - Path=/service1/**
+            - Path=/auth/**
           filters:
             - StripPrefix=1
 
-        - id: service2
-          uri: lb://consul-service2
+        - id: code-submission
+          uri: lb://code-submission-service
           predicates:
-            - Path=/service2/**
+            - Path=/code-submission/**
           filters:
             - StripPrefix=1
 
-        - id: service3
-          uri: lb://consul-service3
+        - id: code-execution
+          uri: lb://code-execution-service
           predicates:
-            - Path=/service3/**
+            - Path=/code-execution/**
           filters:
             - StripPrefix=1
 
-        - id: service4
-          uri: lb://consul-service4
+        - id: contest
+          uri: lb://contest-service
           predicates:
-            - Path=/service4/**
+            - Path=/contest/**
+          filters:
+            - StripPrefix=1
+
+        - id: problems
+          uri: lb://problems-service
+          predicates:
+            - Path=/problems/**
+          filters:
+            - StripPrefix=1
+
+        - id: problem-submission
+          uri: lb://problem-submission-service
+          predicates:
+            - Path=/problem-submission/**
+          filters:
+            - StripPrefix=1
+
+        - id: daily-challenge
+          uri: lb://daily-challenge-service
+          predicates:
+            - Path=/daily-challenge/**
+          filters:
+            - StripPrefix=1
+
+        - id: cpp-execution
+          uri: lb://cpp-execution-service
+          predicates:
+            - Path=/cpp-execution/**
+          filters:
+            - StripPrefix=1
+
+        - id: java-execution
+          uri: lb://java-execution-service
+          predicates:
+            - Path=/java-execution/**
+          filters:
+            - StripPrefix=1
+
+        - id: python-execution
+          uri: lb://python-execution-service
+          predicates:
+            - Path=/python-execution/**
+          filters:
+            - StripPrefix=1
+
+        - id: javascript-execution
+          uri: lb://javascript-execution-service
+          predicates:
+            - Path=/javascript-execution/**
           filters:
             - StripPrefix=1

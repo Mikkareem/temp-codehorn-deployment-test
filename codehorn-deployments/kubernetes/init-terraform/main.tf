@@ -11,8 +11,9 @@ variable "deployer_roles" {
     "roles/compute.securityAdmin",
     "roles/container.admin",
     "roles/iam.serviceAccountUser",
-    "roles/storage.objectAdmin"
-
+    "roles/storage.objectAdmin",
+    "roles/cloudsql.admin",
+    "roles/iam.serviceAccountAdmin"
   ]
 }
 

@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Javascript Execution Service Container
         - name: main
-          image: "{{ .Values.javascript.image.repository }}:{{ .Values.javascript.image.tag }}"
+          image: "{{ .Values.javascript.image.repository }}{{ if eq .Values.javascript.image.sha \"\" }}:latest{{ else }}@{{ .Values.javascript.image.sha }}{{ end }}"
           imagePullPolicy: {{ .Values.javascript.image.pullPolicy }}
           ports:
             - name: http

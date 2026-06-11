@@ -323,3 +323,15 @@ resource "kubernetes_service" "nginx" {
     }
   }
 }
+
+# Deploy Cloud SQL and Standalone Proxy Module
+module "cloudsql" {
+  source       = "./modules/cloudsql"
+  count        = var.enable_cloudsql ? 1 : 0
+  project_id   = var.project_id
+  region       = var.region
+  cluster_name = var.cluster_name
+  
+  # Ensure GKE node pool is active before provisioning K8s namespaces/resources in the module
+  node_pool_dependency = google_container_node_pool.primary_nodes.id
+}

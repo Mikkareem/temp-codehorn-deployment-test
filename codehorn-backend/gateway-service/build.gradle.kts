@@ -17,5 +17,5 @@ dependencies {
 
     implementation(platform(libs.spring.cloud.bom))
     implementation(libs.spring.cloud.starter.gateway.server.webflux)
-    implementation(libs.spring.cloud.starter.loadbalancer)
+    implementation(libs.spring.cloud.starter.consul.discovery)
 }
