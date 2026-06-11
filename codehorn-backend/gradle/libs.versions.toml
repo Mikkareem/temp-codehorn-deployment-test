@@ -1,15 +1,15 @@
 [versions]
-kotlin = "2.3.20"
-springBoot = "4.0.5"
+kotlin = "2.4.0"
+springBoot = "4.0.6"
 springDependencyManagement = "1.1.7"
 springCloud = "2025.1.1"
-kotlinx-serialization = "1.10.0"
-kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.11.0"
+kotlinx-coroutines = "1.11.0"
 mockito = "5.23.0"
 mockito-kotlin = "6.3.0"
 rest-assured = "6.0.0"
 awaitility = "4.3.0"
-stripe-java = "32.0.0"
+stripe-java = "33.0.0"
 
 [libraries]
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
@@ -73,4 +73,5 @@ springBootPlugin = { id = "org.springframework.boot", version.ref = "springBoot"
 springDependencyManagementPlugin = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 springPlugin = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 springJpaPlugin = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+allOpenPlugin = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 kotlinSerializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
