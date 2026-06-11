@@ -6,10 +6,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.module.kotlin)
-    testImplementation(libs.spring.boot.starter.webmvc.test)
     testImplementation(libs.kotlin.test.junit5)
     testRuntimeOnly(libs.junit.platform.launcher)
 
