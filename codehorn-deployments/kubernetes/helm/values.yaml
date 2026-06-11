@@ -8,7 +8,7 @@ common:
   restartPolicy: Always
 # C++ Execution Service
 cpp:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-cpp-execution-service
@@ -26,7 +26,7 @@ cpp:
   resources: {}
 # Java Execution Service
 java:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-java-execution-service
@@ -44,7 +44,7 @@ java:
   resources: {}
 # Python Execution Service
 python:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-python-execution-service
@@ -62,7 +62,7 @@ python:
   resources: {}
 # Javascript Execution Service
 javascript:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-javascript-execution-service
@@ -80,7 +80,7 @@ javascript:
   resources: {}
 # Problems Service
 problems:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-problems-service
@@ -92,7 +92,7 @@ problems:
   resources: {}
 # Contest Service
 contest:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-contest-service
@@ -104,7 +104,7 @@ contest:
   resources: {}
 # Daily Challenge Service
 dailyChallenge:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-daily-challenge-service
@@ -116,7 +116,7 @@ dailyChallenge:
   resources: {}
 # CodeSubmission Service
 codeSubmission:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-code-submission-service
@@ -128,7 +128,7 @@ codeSubmission:
   resources: {}
 # CodeExecution Service
 codeExecution:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-code-execution-service
@@ -140,7 +140,7 @@ codeExecution:
   resources: {}
 # Gateway Service
 gateway:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-gateway-service
@@ -152,7 +152,7 @@ gateway:
   resources: {}
 # Auth Service
 auth:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-auth-service
@@ -164,7 +164,7 @@ auth:
   resources: {}
 # ProblemSubmission Service
 problemSubmission:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: irsathkareem/codehorn-problem-submission-service
