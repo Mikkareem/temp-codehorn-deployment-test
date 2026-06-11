@@ -174,8 +174,71 @@ jobs:
             ${{ vars.DOCKERHUB_USERNAME }}/codehorn-${{ matrix.service }}:latest
           cache-from: type=gha,scope=${{ matrix.service }}
 
-      - name: Print Image Digest SHA
+      - name: Save and Print Image Digest SHA
         run: |
           echo "Successfully published codehorn-${{ matrix.service }}!"
           echo "Image SHA Digest: ${{ steps.build_push.outputs.digest }}"
+          mkdir -p digest-out
+          echo "${{ steps.build_push.outputs.digest }}" > digest-out/digest.txt
 
+      - name: Upload Digest Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.service }}
+          path: digest-out/digest.txt
+
+  update-gitops:
+    name: Update GitOps Helm Values
+    needs: publish-services
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download all digest artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: digests
+
+      - name: Update Helm values.yaml using yq
+        run: |
+          ls -R digests/
+          for service_dir in digests/digest-*; do
+            if [ -d "$service_dir" ]; then
+              service_name=$(basename "$service_dir" | sed 's/digest-//')
+              digest=$(cat "$service_dir"/digest.txt)
+              
+              case "$service_name" in
+                gateway-service) key="gateway" ;;
+                auth-service) key="auth" ;;
+                problems-service) key="problems" ;;
+                problem-submission-service) key="problemSubmission" ;;
+                contest-service) key="contest" ;;
+                daily-challenge-service) key="dailyChallenge" ;;
+                code-submission-service) key="codeSubmission" ;;
+                code-execution-service) key="codeExecution" ;;
+                cpp-execution-service) key="cpp" ;;
+                java-execution-service) key="java" ;;
+                python-execution-service) key="python" ;;
+                javascript-execution-service) key="javascript" ;;
+                *) echo "Unknown service: $service_name"; continue ;;
+              esac
+              
+              echo "Updating $service_name -> .$key.image.sha with $digest"
+              yq -i ".${key}.image.sha = \"${digest}\"" codehorn-deployments/kubernetes/helm/values.yaml
+            fi
+          done
+
+      - name: Commit and push updates
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add codehorn-deployments/kubernetes/helm/values.yaml
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: auto-update image digests [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
