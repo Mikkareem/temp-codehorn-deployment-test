@@ -217,6 +217,12 @@ events {
 }
 
 stream {
+    log_format basic '$remote_addr [$time_local] '
+                     '$protocol $status $bytes_sent $bytes_received '
+                     '$session_time "$upstream_addr"';
+
+    access_log /var/log/nginx/access.log basic;
+
     resolver ${data.kubernetes_service.kube_dns.spec[0].cluster_ip} valid=10s;
 
     map $remote_addr $argocd_http {
