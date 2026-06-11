@@ -36,11 +36,11 @@ ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /tmp/jre $JAVA_HOME
 COPY --from=jre-build /app/codehorn/javascript-execution-service.jar /app/javascript-execution-service.jar
 
-RUN apt-get update && apt-get install -y ca-certificates curl gnupg \
+RUN apt-get update && apt-get install -y ca-certificates curl \
     && install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/keyrings/docker.list > /dev/null \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y docker-ce-cli
 
