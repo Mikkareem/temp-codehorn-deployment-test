@@ -5,7 +5,7 @@ WORKDIR /app/codehorn
 
 ARG CODEHORN_APP_VERSION
 
-RUN chmod +x ./gradlew \
+RUN ls && chmod +x ./gradlew \
     && ./gradlew :auth-service:build -x test \
     && mv /app/codehorn/auth-service/build/libs/auth-service-${CODEHORN_APP_VERSION}.jar /app/codehorn/auth-service.jar \
     && apt update \
