@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Problems Service Container
         - name: main
-          image: "{{ .Values.problems.image.repository }}{{ if eq .Values.problems.image.sha \"\" }}:latest{{ else }}@{{ .Values.problems.image.sha }}{{ end }}"
+          image: '{{ .Values.problems.image.repository }}{{ if eq .Values.problems.image.sha "" }}:latest{{ else }}@{{ .Values.problems.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.problems.image.pullPolicy }}
           ports:
             - name: http

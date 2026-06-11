@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Contest Service Container
         - name: main
-          image: "{{ .Values.contest.image.repository }}{{ if eq .Values.contest.image.sha \"\" }}:latest{{ else }}@{{ .Values.contest.image.sha }}{{ end }}"
+          image: '{{ .Values.contest.image.repository }}{{ if eq .Values.contest.image.sha "" }}:latest{{ else }}@{{ .Values.contest.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.contest.image.pullPolicy }}
           ports:
             - name: http

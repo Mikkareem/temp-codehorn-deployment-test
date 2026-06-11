@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Auth Service Container
         - name: main
-          image: "{{ .Values.auth.image.repository }}{{ if eq .Values.auth.image.sha \"\" }}:latest{{ else }}@{{ .Values.auth.image.sha }}{{ end }}"
+          image: '{{ .Values.auth.image.repository }}{{ if eq .Values.auth.image.sha "" }}:latest{{ else }}@{{ .Values.auth.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
           ports:
             - name: http

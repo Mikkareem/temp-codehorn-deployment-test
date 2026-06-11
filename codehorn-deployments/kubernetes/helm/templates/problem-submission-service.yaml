@@ -18,7 +18,7 @@ spec:
       containers:
         # Main ProblemSubmission Service Container
         - name: main
-          image: "{{ .Values.problemSubmission.image.repository }}{{ if eq .Values.problemSubmission.image.sha \"\" }}:latest{{ else }}@{{ .Values.problemSubmission.image.sha }}{{ end }}"
+          image: '{{ .Values.problemSubmission.image.repository }}{{ if eq .Values.problemSubmission.image.sha "" }}:latest{{ else }}@{{ .Values.problemSubmission.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.problemSubmission.image.pullPolicy }}
           ports:
             - name: http

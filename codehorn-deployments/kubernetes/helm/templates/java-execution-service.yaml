@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Java Execution Service Container
         - name: main
-          image: "{{ .Values.java.image.repository }}{{ if eq .Values.java.image.sha \"\" }}:latest{{ else }}@{{ .Values.java.image.sha }}{{ end }}"
+          image: '{{ .Values.java.image.repository }}{{ if eq .Values.java.image.sha "" }}:latest{{ else }}@{{ .Values.java.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.java.image.pullPolicy }}
           ports:
             - name: http

@@ -18,7 +18,7 @@ spec:
       containers:
         # Main Gateway Service Container
         - name: main
-          image: "{{ .Values.gateway.image.repository }}{{ if eq .Values.gateway.image.sha \"\" }}:latest{{ else }}@{{ .Values.gateway.image.sha }}{{ end }}"
+          image: '{{ .Values.gateway.image.repository }}{{ if eq .Values.gateway.image.sha "" }}:latest{{ else }}@{{ .Values.gateway.image.sha }}{{ end }}'
           imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
           ports:
             - name: http
