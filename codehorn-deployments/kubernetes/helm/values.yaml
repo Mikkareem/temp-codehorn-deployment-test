@@ -145,7 +145,7 @@ gateway:
   image:
     repository: irsathkareem/codehorn-gateway-service
     pullPolicy: IfNotPresent
-    sha: "sha256:d1d68b8207611407b59e606cd83732d4d568a7e7258e0de16c9fe5d994fe1200"
+    sha: "sha256:144d5d29c107df7710ad91d9c4fbc72ada4b3d9f07ead1131f4884fb279c74ec"
   service:
     type: ClusterIP
     port: 80
