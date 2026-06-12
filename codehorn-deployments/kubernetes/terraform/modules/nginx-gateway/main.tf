@@ -87,18 +87,13 @@ resource "kubernetes_deployment" "nginx" {
           image = "nginx:alpine"
 
           port {
-            name           = "http"
+            name           = "app"
             container_port = 80
           }
 
           port {
-            name           = "https"
-            container_port = 443
-          }
-
-          port {
-            name           = "consul"
-            container_port = 8500
+            name           = "argocd"
+            container_port = 3500
           }
 
           volume_mount {
@@ -134,21 +129,15 @@ resource "kubernetes_service" "nginx" {
     }
 
     port {
-      name        = "http"
+      name        = "app"
       port        = 80
       target_port = 80
     }
 
     port {
-      name        = "https"
-      port        = 443
-      target_port = 443
-    }
-
-    port {
-      name        = "consul"
-      port        = 8500
-      target_port = 8500
+      name        = "argocd"
+      port        = 3500
+      target_port = 3500
     }
   }
 }

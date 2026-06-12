@@ -61,14 +61,14 @@ jobs:
           PASSWORD=$(terraform output -raw argocd_initial_admin_password)
           
           echo "=== Deployment Details ==="
-          echo "Argo CD UI URL: http://${NGINX_IP}"
+          echo "Argo CD UI URL: http://${NGINX_IP}:3500"
           echo "Initial Admin Password: ${PASSWORD}"
           echo "=========================="
           
           # Wait and test connection
           echo "Testing accessibility to Argo CD UI via Nginx Gateway..."
           for i in {1..30}; do
-            if curl -s -f -o /dev/null "http://${NGINX_IP}"; then
+            if curl -s -f -o /dev/null "http://${NGINX_IP}:3500"; then
               echo "Argo CD UI is accessible via Nginx!"
               exit 0
             fi

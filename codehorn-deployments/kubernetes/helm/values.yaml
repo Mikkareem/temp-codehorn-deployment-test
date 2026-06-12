@@ -195,6 +195,6 @@ nginx:
     tag: alpine
     pullPolicy: IfNotPresent
   service:
-    type: LoadBalancer
+    type: ClusterIP
     port: 80
   resources: {}
