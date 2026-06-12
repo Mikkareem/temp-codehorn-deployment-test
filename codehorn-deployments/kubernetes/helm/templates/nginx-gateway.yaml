@@ -33,7 +33,12 @@ data:
         server {
             listen 80;
 
+            location = /consul {
+              return 301 /consul/;
+            }
+
             location /consul/ {
+              rewrite ^/consul/(.*)$ /$1 break;
               proxy_pass http://$consul_backend;
             }
 
