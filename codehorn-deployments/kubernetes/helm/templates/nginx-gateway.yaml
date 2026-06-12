@@ -16,8 +16,8 @@ data:
     }
     http {
         log_format basic '$remote_addr [$time_local] '
-                         '$protocol $status $bytes_sent $bytes_received '
-                         '$session_time "$upstream_addr"';
+                         '$status $body_bytes_sent '
+                         '$request_time "$upstream_addr"';
 
         access_log /dev/stdout basic;
 
