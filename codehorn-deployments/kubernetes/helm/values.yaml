@@ -13,7 +13,7 @@ cpp:
   image:
     repository: irsathkareem/codehorn-cpp-execution-service
     pullPolicy: IfNotPresent
-    sha: "sha256:7e661ae97a191c5ef4deae6ec5c37810ecaa30afb036db8cf9b71d46470d9e2b"
+    sha: "sha256:b9322f6754a4e69fd7d05fe923185948e71d49a72ec741584b617f86364d81ca"
   sidecar:
     image:
       repository: docker
@@ -31,7 +31,7 @@ java:
   image:
     repository: irsathkareem/codehorn-java-execution-service
     pullPolicy: IfNotPresent
-    sha: "sha256:c5747d4e1525f432c58c7718e14bfba7bd551dba031d75d7805ac9a0c3d35889"
+    sha: "sha256:a08fbb8e06e50c85842d5fcd2e554d6d4923c81f33053ea507edd0c0a667c4b3"
   sidecar:
     image:
       repository: docker
@@ -49,7 +49,7 @@ python:
   image:
     repository: irsathkareem/codehorn-python-execution-service
     pullPolicy: IfNotPresent
-    sha: "sha256:6493ccee107d6cff2465c62c48390bd3d6113f6e867b5f651bc25ec6056e8bfa"
+    sha: "sha256:5b1bbabacdfd84ffdac7f335545253543ca863ca6d385516fa7679ccb1c5d593"
   sidecar:
     image:
       repository: docker
@@ -67,7 +67,7 @@ javascript:
   image:
     repository: irsathkareem/codehorn-javascript-execution-service
     pullPolicy: IfNotPresent
-    sha: "sha256:223b7ad8557c2a92b91af52cae4cee564b2b72cd906efc55f735edceb7dfc982"
+    sha: "sha256:b45d9c3f06bf4fa4928348dce1cce51df630ae5ca102e39ba1556ed59e1fd0b4"
   sidecar:
     image:
       repository: docker
@@ -85,7 +85,7 @@ problems:
   image:
     repository: irsathkareem/codehorn-problems-service
     pullPolicy: IfNotPresent
-    sha: "sha256:eebc2c69310504428c0fe0f3d36a6f02c932ba6030e615f43a64fba77accdff4"
+    sha: "sha256:d7e9b72079c60f883ae978ec69a532cbe1244435505f7dd396f7fafb4a78f997"
   service:
     type: ClusterIP
     port: 80
@@ -97,7 +97,7 @@ contest:
   image:
     repository: irsathkareem/codehorn-contest-service
     pullPolicy: IfNotPresent
-    sha: "sha256:468740f96d627baa50448579446f77fcd4dafb77d16c98ab3bfd3a3135e9f270"
+    sha: "sha256:d4a307c2187114fef664a5a5e8883ad1783c22e8fad00c64d9c53d73833b3e17"
   service:
     type: ClusterIP
     port: 80
@@ -109,7 +109,7 @@ dailyChallenge:
   image:
     repository: irsathkareem/codehorn-daily-challenge-service
     pullPolicy: IfNotPresent
-    sha: "sha256:56c27a6c51890d515488b1be9083c9a3ee7624b0db89ef5b45b6b981660bb0f0"
+    sha: "sha256:2bd79ee6473e9058553692caeb3ddfd6769bac8d609581a98edd416723faeea4"
   service:
     type: ClusterIP
     port: 80
@@ -121,7 +121,7 @@ codeSubmission:
   image:
     repository: irsathkareem/codehorn-code-submission-service
     pullPolicy: IfNotPresent
-    sha: "sha256:dfe699067dac3a7cee068b29bb0f1aa62206b165accc01951a7568cce461e6b0"
+    sha: "sha256:b2bbd04ac3043746a66c5997a11ca2b89fc68694dbeeb4c212f652beb0d052e6"
   service:
     type: ClusterIP
     port: 80
@@ -133,7 +133,7 @@ codeExecution:
   image:
     repository: irsathkareem/codehorn-code-execution-service
     pullPolicy: IfNotPresent
-    sha: "sha256:8aa11abe519b017f5eb72ebdae5e2af1acfa743a30df3cf12ab52003e73987fa"
+    sha: "sha256:aaa319d12bc0fd6e99d74bec88cf83eb8270dbfc1e9232504cb3ac813ea88225"
   service:
     type: ClusterIP
     port: 80
@@ -145,7 +145,7 @@ gateway:
   image:
     repository: irsathkareem/codehorn-gateway-service
     pullPolicy: IfNotPresent
-    sha: "sha256:144d5d29c107df7710ad91d9c4fbc72ada4b3d9f07ead1131f4884fb279c74ec"
+    sha: "sha256:bd96d9bf992f541a0d18dd762547f4151fd93660e37e1ae0e52b16e409f81fa2"
   service:
     type: ClusterIP
     port: 80
@@ -157,7 +157,7 @@ auth:
   image:
     repository: irsathkareem/codehorn-auth-service
     pullPolicy: IfNotPresent
-    sha: "sha256:a0fabf5540969eb744131030f95e50921eaa2542f280f04c1d562ccd430bb074"
+    sha: "sha256:798d56fe38c618edf74911f7442ab02f5b773a6fc320f9e42ff893c236bc4c95"
   service:
     type: ClusterIP
     port: 80
@@ -169,7 +169,7 @@ problemSubmission:
   image:
     repository: irsathkareem/codehorn-problem-submission-service
     pullPolicy: IfNotPresent
-    sha: "sha256:c5e670c85f556bf34b8e49190cb358b19fce448bd63bb7c228941ae48c1bd6fd"
+    sha: "sha256:977911a72aa7e6c09269bee0f9fc296812fb1bad38991c929ff11560a8af1a90"
   service:
     type: ClusterIP
     port: 80
