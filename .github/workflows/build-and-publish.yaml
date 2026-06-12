@@ -121,11 +121,19 @@ jobs:
         with:
           context: codehorn-backend
           file: codehorn-backend/Dockerfiles/${{ matrix.service }}.Dockerfile
-          push: false
+          tags: codehorn-${{ matrix.service }}:${{ steps.get_version.outputs.version }}
+          outputs: type=docker,dest=/tmp/${{ matrix.service }}.tar
           build-args: |
             CODEHORN_APP_VERSION=${{ steps.get_version.outputs.version }}
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.service }}
+          path: /tmp/${{ matrix.service }}.tar
+          retention-days: 1
 
   publish-services:
     name: Publish Services
@@ -147,39 +155,46 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
+          
       - name: Extract Project Version
         id: get_version
         run: |
           VERSION=$(grep -oE "version = \"[^\"]+\"" codehorn-backend/build.gradle.kts | head -n 1 | cut -d'"' -f2)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Service Image
-        uses: docker/build-push-action@v5
-        id: build_push
+      - name: Download Image Artifact
+        uses: actions/download-artifact@v4
         with:
-          context: codehorn-backend
-          file: codehorn-backend/Dockerfiles/${{ matrix.service }}.Dockerfile
-          push: true
-          build-args: |
-            CODEHORN_APP_VERSION=${{ steps.get_version.outputs.version }}
-          tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/codehorn-${{ matrix.service }}:${{ steps.get_version.outputs.version }}
-            ${{ vars.DOCKERHUB_USERNAME }}/codehorn-${{ matrix.service }}:latest
-          cache-from: type=gha,scope=${{ matrix.service }}
+          name: image-${{ matrix.service }}
+          path: /tmp/image-${{ matrix.service }}
+
+      - name: Load, Tag and Push Image
+        id: push_image
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          DOCKER_USER=${{ vars.DOCKERHUB_USERNAME }}
+          
+          # Load the image
+          docker load -i /tmp/image-${{ matrix.service }}/${{ matrix.service }}.tar
+          
+          # Tag
+          docker tag codehorn-${{ matrix.service }}:${VERSION} ${DOCKER_USER}/codehorn-${{ matrix.service }}:${VERSION}
+          docker tag codehorn-${{ matrix.service }}:${VERSION} ${DOCKER_USER}/codehorn-${{ matrix.service }}:latest
+          
+          # Push
+          docker push ${DOCKER_USER}/codehorn-${{ matrix.service }}:${VERSION}
+          docker push ${DOCKER_USER}/codehorn-${{ matrix.service }}:latest
+          
+          # Get digest SHA
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${DOCKER_USER}/codehorn-${{ matrix.service }}:${VERSION} | cut -d'@' -f2)
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Save and Print Image Digest SHA
         run: |
           echo "Successfully published codehorn-${{ matrix.service }}!"
-          echo "Image SHA Digest: ${{ steps.build_push.outputs.digest }}"
+          echo "Image SHA Digest: ${{ steps.push_image.outputs.digest }}"
           mkdir -p digest-out
-          echo "${{ steps.build_push.outputs.digest }}" > digest-out/digest.txt
+          echo "${{ steps.push_image.outputs.digest }}" > digest-out/digest.txt
 
       - name: Upload Digest Artifact
         uses: actions/upload-artifact@v4

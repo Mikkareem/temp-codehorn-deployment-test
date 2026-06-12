@@ -9,6 +9,8 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.module.kotlin)
     testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation("org.wiremock:wiremock-standalone:3.6.0")
     testRuntimeOnly(libs.junit.platform.launcher)
 
     implementation(libs.spring.boot.starter.actuator)

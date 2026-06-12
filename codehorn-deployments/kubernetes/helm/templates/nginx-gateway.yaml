@@ -14,7 +14,7 @@ data:
     events {
         worker_connections 1024;
     }
-    stream {
+    http {
         log_format basic '$remote_addr [$time_local] '
                          '$protocol $status $bytes_sent $bytes_received '
                          '$session_time "$upstream_addr"';
@@ -23,13 +23,23 @@ data:
 
         resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
+        map $remote_addr $consul_backend {
+            default {{ .Release.Name }}-consul.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.consul.service.port }};
+        }
         map $remote_addr $gateway_backend {
             default {{ .Release.Name }}-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.gateway.service.port }};
         }
 
         server {
             listen 80;
-            proxy_pass $gateway_backend;
+
+            location /consul/ {
+              proxy_pass http://$consul_backend;
+            }
+
+            location / {
+              proxy_pass http://$gateway_backend;
+            }
         }
     }
 ---

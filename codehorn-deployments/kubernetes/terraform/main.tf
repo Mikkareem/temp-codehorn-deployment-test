@@ -106,62 +106,12 @@ resource "google_container_node_pool" "secondary_nodes" {
   }
 }
 
-# Deploy ArgoCD namespace
-resource "kubernetes_namespace" "argocd" {
-  depends_on = [google_container_node_pool.primary_nodes]
-
-  metadata {
-    name = "argocd"
-  }
-}
-
-# Install Argo CD using Helm
-resource "helm_release" "argocd" {
-  name       = "argocd"
-  repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argo-cd"
-  version    = "6.7.18"
-  namespace  = kubernetes_namespace.argocd.metadata[0].name
-
-  wait = true
-
-  #values = [
-  #  yamlencode({
-  #    global = {
-  #      nodeSelector = {
-  #        "nodeports-open" = "true"
-  #      }
-  #    }
-  #  })
-  #]
-}
-
-# Fetch the initial admin secret created by Argo CD installation
-data "kubernetes_secret" "argocd_initial_admin_secret" {
-  depends_on = [helm_release.argocd]
-
-  metadata {
-    name      = "argocd-initial-admin-secret"
-    namespace = kubernetes_namespace.argocd.metadata[0].name
-  }
-}
-
-# Fetch GKE cluster nodes to extract Node IP
-data "kubernetes_nodes" "gke_nodes" {
-  depends_on = [google_container_node_pool.primary_nodes]
-}
-
-# Deploy Argo CD Application via kubectl in local-exec to avoid plan-time REST client errors
-resource "terraform_data" "argocd_application" {
-  depends_on = [helm_release.argocd]
-
-  input = filemd5("${path.module}/../argocd/application.yaml")
-
-  provisioner "local-exec" {
-    command = <<EOT
-      kubectl --server="https://${google_container_cluster.primary.endpoint}" --token="${data.google_client_config.default.access_token}" --insecure-skip-tls-verify=true apply -f ${path.module}/../argocd/application.yaml
-    EOT
-  }
+# Deploy ArgoCD Module
+module "argocd" {
+  source               = "./modules/argocd"
+  node_pool_dependency = google_container_node_pool.primary_nodes.id
+  cluster_endpoint     = google_container_cluster.primary.endpoint
+  access_token         = data.google_client_config.default.access_token
 }
 
 # Create Cloud Router for NAT
@@ -188,166 +138,11 @@ data "kubernetes_service" "kube_dns" {
   }
 }
 
-# Create nginx-gateway namespace
-resource "kubernetes_namespace" "nginx_gateway" {
-  depends_on = [google_container_node_pool.primary_nodes]
-
-  metadata {
-    name = "nginx-gateway"
-  }
-}
-
-# Create Nginx ConfigMap for TCP Stream Proxy
-resource "kubernetes_config_map" "nginx_config" {
-  metadata {
-    name      = "nginx-config"
-    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
-  }
-
-  data = {
-    "nginx.conf" = <<EOT
-user  nginx;
-worker_processes  auto;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-stream {
-    log_format basic '$remote_addr [$time_local] '
-                     '$protocol $status $bytes_sent $bytes_received '
-                     '$session_time "$upstream_addr"';
-
-    access_log /dev/stdout basic;
-
-    resolver ${data.kubernetes_service.kube_dns.spec[0].cluster_ip} valid=10s;
-
-    map $remote_addr $argocd_http {
-        default argocd-server.argocd.svc.cluster.local:80;
-    }
-    map $remote_addr $argocd_https {
-        default argocd-server.argocd.svc.cluster.local:443;
-    }
-    map $remote_addr $consul_backend {
-        default codehorn-app-consul.codehorn-app.svc.cluster.local:8500;
-    }
-
-    server {
-        listen 80;
-        proxy_pass $argocd_http;
-    }
-    server {
-        listen 443;
-        proxy_pass $argocd_https;
-    }
-    server {
-        listen 8500;
-        proxy_pass $consul_backend;
-    }
-}
-EOT
-  }
-}
-
-# Create Nginx Deployment
-resource "kubernetes_deployment" "nginx" {
-  metadata {
-    name      = "nginx-gateway"
-    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
-    labels = {
-      app = "nginx-gateway"
-    }
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "nginx-gateway"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "nginx-gateway"
-        }
-      }
-
-      spec {
-        container {
-          name  = "nginx"
-          image = "nginx:alpine"
-
-          port {
-            name           = "http"
-            container_port = 80
-          }
-
-          port {
-            name           = "https"
-            container_port = 443
-          }
-
-          port {
-            name           = "consul"
-            container_port = 8500
-          }
-
-          volume_mount {
-            name       = "config-volume"
-            mount_path = "/etc/nginx/nginx.conf"
-            sub_path   = "nginx.conf"
-          }
-        }
-
-        volume {
-          name = "config-volume"
-          config_map {
-            name = kubernetes_config_map.nginx_config.metadata[0].name
-          }
-        }
-      }
-    }
-  }
-}
-
-# Create Nginx LoadBalancer Service (without specifying nodePorts)
-resource "kubernetes_service" "nginx" {
-  metadata {
-    name      = "nginx-gateway"
-    namespace = kubernetes_namespace.nginx_gateway.metadata[0].name
-  }
-
-  spec {
-    type = "LoadBalancer"
-
-    selector = {
-      app = "nginx-gateway"
-    }
-
-    port {
-      name        = "http"
-      port        = 80
-      target_port = 80
-    }
-
-    port {
-      name        = "https"
-      port        = 443
-      target_port = 443
-    }
-
-    port {
-      name        = "consul"
-      port        = 8500
-      target_port = 8500
-    }
-  }
+# Deploy GKE Nginx TCP Stream Gateway Module
+module "nginx_gateway" {
+  source               = "./modules/nginx-gateway"
+  node_pool_dependency = google_container_node_pool.primary_nodes.id
+  kube_dns_ip          = data.kubernetes_service.kube_dns.spec[0].cluster_ip
 }
 
 # Deploy Cloud SQL and Standalone Proxy Module
