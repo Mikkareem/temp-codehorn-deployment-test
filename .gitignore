@@ -16,3 +16,5 @@ build
 # FRONTEND
 node_modules
 dist
+
+.env*
