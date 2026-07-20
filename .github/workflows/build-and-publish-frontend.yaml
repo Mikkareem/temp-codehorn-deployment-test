@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  frontend-publish:
     name: Build and Publish Frontend
     runs-on: ubuntu-latest
     steps:
@@ -46,9 +46,36 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
+      - name: Save Digest to File
+        run: |
+          mkdir -p digest-out
+          echo "${{ steps.build_push.outputs.digest }}" > digest-out/digest.txt
+
+      - name: Upload Digest Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-frontend
+          path: digest-out/digest.txt
+  
+  update-gitops:
+    name: Update GitOps Helm Values
+    needs: frontend-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Digest Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: digest-frontend
+          path: digest-out
+      
       - name: Update Helm values.yaml using yq
         run: |
-          digest="${{ steps.build_push.outputs.digest }}"
+          digest=$(cat digest-out/digest.txt)
           echo "Updating frontend.image.sha with $digest"
           yq -i ".frontend.image.sha = \"${digest}\"" codehorn-deployments/kubernetes/helm/values.yaml
 
