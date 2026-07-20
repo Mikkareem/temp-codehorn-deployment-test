@@ -70,21 +70,29 @@ Configure the following prerequisites before running the deployment workflows:
            {
                "Sid": "IAMRoleManagement",
                "Effect": "Allow",
-                "Action": [
-                    "iam:CreateRole",
-                    "iam:DeleteRole",
-                    "iam:GetRole",
-                    "iam:PutRolePolicy",
-                    "iam:DeleteRolePolicy",
-                    "iam:GetRolePolicy",
-                    "iam:ListRolePolicies",
-                    "iam:ListAttachedRolePolicies",
-                    "iam:ListInstanceProfilesForRole",
-                    "iam:UpdateRole",
-                    "iam:TagRole",
-                    "iam:UntagRole"
-                ],
-                "Resource": "arn:aws:iam::*:role/codehorn-terraform-deployer"
+               "Action": [
+                   "iam:CreateRole",
+                   "iam:DeleteRole",
+                   "iam:GetRole",
+                   "iam:PutRolePolicy",
+                   "iam:DeleteRolePolicy",
+                   "iam:GetRolePolicy",
+                   "iam:ListRolePolicies",
+                   "iam:ListAttachedRolePolicies",
+                   "iam:ListInstanceProfilesForRole",
+                   "iam:UpdateRole",
+                   "iam:TagRole",
+                   "iam:UntagRole"
+               ],
+               "Resource": "arn:aws:iam::*:role/codehorn-terraform-deployer"
+           },
+           {
+               "Sid": "AssumeDeployerRole",
+               "Effect": "Allow",
+               "Action": [
+                   "sts:AssumeRole"
+               ],
+               "Resource": "arn:aws:iam::*:role/codehorn-terraform-deployer"
            }
        ]
    }
