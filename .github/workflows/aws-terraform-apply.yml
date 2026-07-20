@@ -1,0 +1,65 @@
+name: AWS Terraform Apply
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-apply:
+    name: AWS Terraform Apply and Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (Deployer Role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/codehorn-terraform-deployer
+          role-duration-seconds: 3600
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: Terraform Init
+        working-directory: codehorn-deployments/kubernetes/terraform-aws
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: codehorn-deployments/kubernetes/terraform-aws
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: codehorn-deployments/kubernetes/terraform-aws
+        run: terraform apply -auto-approve
+
+      - name: Verify Argo CD UI Accessibility
+        working-directory: codehorn-deployments/kubernetes/terraform-aws
+        run: |
+          # Get Nginx Hostname and decode password
+          NGINX_HOST=$(terraform output -raw nginx_url)
+          PASSWORD=$(terraform output -raw argocd_initial_admin_password)
+          
+          echo "=== Deployment Details ==="
+          echo "Argo CD UI URL: http://${NGINX_HOST}:3500"
+          echo "Initial Admin Password: ${PASSWORD}"
+          echo "=========================="
+          
+          # Wait and test connection
+          echo "Testing accessibility to Argo CD UI via Nginx Gateway..."
+          for i in {1..30}; do
+            if curl -s -f -o /dev/null "http://${NGINX_HOST}:3500"; then
+              echo "Argo CD UI is accessible via Nginx!"
+              exit 0
+            fi
+            echo "Waiting for Nginx Gateway / Argo CD to be accessible... (attempt $i/30)"
+            sleep 10
+          done
+          
+          echo "Error: Argo CD UI is not accessible after 5 minutes"
+          exit 1

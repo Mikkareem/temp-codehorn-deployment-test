@@ -1,0 +1,51 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}-frontend
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-frontend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-frontend
+    spec:
+      containers:
+        - name: main
+          image: '{{ .Values.frontend.image.repository }}{{ if eq .Values.frontend.image.sha "" }}:{{ .Values.frontend.image.tag }}{{ else }}@{{ .Values.frontend.image.sha }}{{ end }}'
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "{{ .Values.frontend.service.port }}"
+            - name: USE_GATEWAY
+              value: "{{ .Values.frontend.env.useGateway }}"
+            - name: GATEWAY_API_URL
+              value: "http://{{ .Release.Name }}-gateway-service:{{ .Values.gateway.service.port }}"
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}-frontend
+spec:
+  type: {{ .Values.frontend.service.type }}
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-frontend
+{{- end }}

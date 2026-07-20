@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-zinc-950: #0A0A0A; /* Deepest black backdrop */
+  --color-zinc-900: #1A1A1A; /* Premium panel surface */
+  --color-zinc-850: #202020; /* Intermediate surface */
+  --color-zinc-800: #262626; /* Clean card border */
+  --color-zinc-700: #333333; /* Input border / heavy lines */
+  --color-zinc-600: #4D4D4D; /* Secondary muted elements */
+  --color-zinc-500: #9CA3AF; /* Muted secondary labels */
+  --color-zinc-400: #EFF1F6; /* High contrast white labels */
+  --color-zinc-300: #D1D5DB; /* Clean body text */
+  --color-zinc-200: #E5E7EB; /* Card headings */
+  --color-zinc-100: #F3F4F6; /* Prominent titles */
+
+  --color-amber-500: #EFF1F6; /* Minimalist white highlights */
+  --color-amber-600: #EFF1F6;
+  --color-amber-400: #EFF1F6;
+}
+
+/* Light Theme overrides mapping to a clean, eye-safe high-end grey/white palette */
+.global-theme-light {
+  --color-zinc-950: #F9FAFB; /* Clean white-smoke background */
+  --color-zinc-900: #FFFFFF; /* Pure white card/panel surfaces */
+  --color-zinc-850: #F3F4F6; /* Soft light grey */
+  --color-zinc-800: #E5E7EB; /* Clean slate grey border */
+  --color-zinc-700: #D1D5DB; /* Input borderlines */
+  --color-zinc-600: #9CA3AF; /* Secondary muted markings */
+  --color-zinc-500: #6B7280; /* Soft muted metadata descriptive labels */
+  --color-zinc-400: #1F2937; /* Dark charcoal grey info/labels */
+  --color-zinc-300: #374151; /* Clean grey-slate body copy */
+  --color-zinc-200: #111827; /* Rich black title and card headers */
+  --color-zinc-100: #030712; /* Solid black prominent headings */
+
+  --color-amber-500: #2563EB; /* Elegant royal blue/indigo accents in light mode */
+  --color-amber-400: #1D4ED8;
+  --color-amber-600: #1E40AF;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom Transitions */
+  --animate-fade-in: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom styles for high-fidelity custom presentation */
+.custom-minimal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-minimal-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-zinc-950);
+}
+
+.custom-minimal-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-zinc-800);
+  border-radius: 3px;
+}
+
+.custom-minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-zinc-700);
+}

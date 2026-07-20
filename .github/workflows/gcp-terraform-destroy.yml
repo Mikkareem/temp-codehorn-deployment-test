@@ -1,0 +1,54 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (Bootstrap)
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.BOOTSTRAP_TERRAFORM_SERVICE_ACCOUNT_JSON }}
+
+      - name: Create GKE Deployer SA Key
+        run: |
+          gcloud iam service-accounts keys create ${{ github.workspace }}/temp-key.json \
+            --iam-account="codehorn-terraform-deployer@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com"
+          KEY_ID=$(jq -r '.private_key_id' ${{ github.workspace }}/temp-key.json)
+          echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
+          echo "Waiting for IAM propagation..."
+          sleep 15
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: Terraform Init
+        working-directory: codehorn-deployments/kubernetes/terraform-gcp
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
+        run: terraform init
+
+      - name: Terraform Destroy
+        working-directory: codehorn-deployments/kubernetes/terraform-gcp
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/temp-key.json
+        run: terraform destroy -auto-approve
+
+      - name: Clean up GKE Deployer SA Key
+        if: always()
+        run: |
+          if [ ! -z "$KEY_ID" ]; then
+            gcloud iam service-accounts keys delete "$KEY_ID" \
+              --iam-account="codehorn-terraform-deployer@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com" --quiet
+          fi

@@ -29,6 +29,9 @@ data:
         map $remote_addr $gateway_backend {
             default {{ .Release.Name }}-gateway-service.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.gateway.service.port }};
         }
+        map $remote_addr $app_backend {
+            default {{ .Release.Name }}-frontend.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.frontend.service.port }};
+        }
 
         server {
             listen 80;
@@ -42,7 +45,7 @@ data:
             }
 
             location / {
-              proxy_pass http://$gateway_backend;
+              proxy_pass http://$app_backend;
             }
         }
     }
