@@ -181,7 +181,7 @@ frontend:
   image:
     repository: irsathkareem/codehorn-app
     tag: latest
-    sha: ""
+    sha: "sha256:f070f231a3ba88b10570359bfe96c08e642d7bd02116d4d668e16c6b7c343436"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
