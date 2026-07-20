@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: '{{ .Values.frontend.image.repository }}{{ if eq .Values.frontend.image.sha "" }}:{{ .Values.frontend.image.tag }}{{ else }}@{{ .Values.frontend.image.sha }}{{ end }}'
+          image: '{{ .Values.frontend.image.repository }}@{{ .Values.frontend.image.sha }}'
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - name: http
