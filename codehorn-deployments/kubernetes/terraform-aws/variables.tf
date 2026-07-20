@@ -11,9 +11,9 @@ variable "cluster_name" {
 }
 
 variable "primary_node_instance_type" {
-  description = "Instance type for primary node group (2 vCPU, 4GB)"
+  description = "Instance type for primary node group (2 vCPU, 8GB)"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.large"
 }
 
 variable "enable_rds" {
