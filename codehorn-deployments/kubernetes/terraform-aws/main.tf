@@ -234,12 +234,12 @@ module "nginx_gateway" {
 }
 
 # Deploy RDS Module
-module "rds" {
-  source                = "./modules/rds"
-  count                 = var.enable_rds ? 1 : 0
-  cluster_name          = var.cluster_name
-  vpc_id                = aws_vpc.main.id
-  subnet_ids            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
-  node_pool_dependency  = aws_eks_node_group.primary_nodes.id
-  eks_security_group_id = aws_eks_cluster.primary.vpc_config[0].cluster_security_group_id
-}
+#module "rds" {
+#  source                = "./modules/rds"
+#  count                 = var.enable_rds ? 1 : 0
+#  cluster_name          = var.cluster_name
+#  vpc_id                = aws_vpc.main.id
+#  subnet_ids            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+#  node_pool_dependency  = aws_eks_node_group.primary_nodes.id
+#  eks_security_group_id = aws_eks_cluster.primary.vpc_config[0].cluster_security_group_id
+#}
