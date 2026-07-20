@@ -36,7 +36,7 @@ resource "terraform_data" "argocd_application" {
 
   provisioner "local-exec" {
     command = <<EOT
-      kubectl --server="https://${var.cluster_endpoint}" --token="${var.access_token}" --insecure-skip-tls-verify=true apply -f ${path.module}/../../../argocd/application.yaml
+      kubectl --server="${var.cluster_endpoint}" --token="${var.access_token}" --insecure-skip-tls-verify=true apply -f ${path.module}/../../../argocd/application.yaml
     EOT
   }
 }
