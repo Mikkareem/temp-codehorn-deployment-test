@@ -145,6 +145,19 @@ resource "aws_eks_cluster" "primary" {
   depends_on = [aws_iam_role_policy_attachment.cluster_policy]
 }
 
+# VPC CNI EKS Addon (to enable Prefix Delegation)
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name = aws_eks_cluster.primary.name
+  addon_name   = "vpc-cni"
+
+  configuration_values = jsonencode({
+    env = {
+      ENABLE_PREFIX_DELEGATION = "true"
+      WARM_PREFIX_TARGET       = "1"
+    }
+  })
+}
+
 # Primary Managed Node Group (1 Node, t3.medium)
 resource "aws_eks_node_group" "primary_nodes" {
   cluster_name    = aws_eks_cluster.primary.name
@@ -164,6 +177,7 @@ resource "aws_eks_node_group" "primary_nodes" {
     aws_iam_role_policy_attachment.nodes_worker,
     aws_iam_role_policy_attachment.nodes_cni,
     aws_iam_role_policy_attachment.nodes_registry,
+    aws_eks_addon.vpc_cni,
   ]
 }
 
