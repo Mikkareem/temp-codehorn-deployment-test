@@ -46,16 +46,9 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
-      - name: Get Frontend Image Digest
-        id: get_digest
-        run: |
-          # Fetch the digest of the pushed image
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ vars.DOCKERHUB_USERNAME }}/codehorn-app:${{ steps.get_version.outputs.version }} | cut -d'@' -f2)
-          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
-
       - name: Update Helm values.yaml using yq
         run: |
-          digest="${{ steps.get_digest.outputs.digest }}"
+          digest="${{ steps.build_push.outputs.digest }}"
           echo "Updating frontend.image.sha with $digest"
           yq -i ".frontend.image.sha = \"${digest}\"" codehorn-deployments/kubernetes/helm/values.yaml
 
